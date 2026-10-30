@@ -1,35 +1,49 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
-import { Trophy, Users, Shuffle, Plus, Trash2, Play, CheckCircle, Shield, Award, Calendar, Flame, Dumbbell } from 'lucide-react';
+import { Trophy, Users, Shuffle, Plus, Trash2, Dumbbell, Flame } from 'lucide-react';
 
 function App() {
   const [aba, setAba] = useState('sorteio'); // 'sorteio', 'treinos', 'arena'
 
   // ESTADOS DO SORTEADOR DE DUPLAS (ARENA JOGA BEACH)
   const [novoAtleta, setNovoAtleta] = useState('');
-  const [poteAtleta, setPoteAtleta] = useState('A'); // Pote A (Avançado/Intermediário) ou Pote B (Iniciante)
+  const [poteAtleta, setPoteAtleta] = useState('A'); // Pote A (Linha/Avançado) ou Pote B (Base/Iniciante)
+  
+  // LISTA DE ATLETAS DO TORNEIO JOGA BEACH (PODES ADICIONAR E REMOVER)
   const [listaAtletas, setListaAtletas] = useState([
     { id: 1, nome: "Rica Santos", pote: "A" },
     { id: 2, nome: "Rafão", pote: "A" },
     { id: 3, nome: "Eric", pote: "A" },
     { id: 4, nome: "Anderson", pote: "A" },
-    { id: 5, nome: "Diego", pote: "B" },
-    { id: 6, nome: "Sérgio", pote: "B" },
-    { id: 7, nome: "Alvaro", pote: "B" },
-    { id: 8, nome: "Wagninho", pote: "B" }
+    { id: 5, nome: "Ricardo Padua", pote: "A" },
+    { id: 6, nome: "Danillo", pote: "A" },
+    { id: 7, nome: "Diego", pote: "B" },
+    { id: 8, nome: "Sérgio", pote: "B" },
+    { id: 9, nome: "Alvaro", pote: "B" },
+    { id: 10, nome: "Wagninho", pote: "B" },
+    { id: 11, nome: "Luis Felipe", pote: "B" },
+    { id: 12, nome: "Carlos Guimarães", pote: "B" }
   ]);
   const [duplasSorteadas, setDuplasSorteadas] = useState([]);
 
-  // Adicionar Atleta
-  const adicionarAtleta = () => {
+  // Adicionar Novo Atleta (Ação do Botão + e Tecla Enter)
+  const adicionarAtleta = (e) => {
+    if (e) e.preventDefault();
     if (!novoAtleta.trim()) return;
-    setListaAtletas([...listaAtletas, { id: Date.now(), nome: novoAtleta.trim(), pote: poteAtleta }]);
+    
+    const novo = {
+      id: Date.now(),
+      nome: novoAtleta.trim(),
+      pote: poteAtleta
+    };
+
+    setListaAtletas(prev => [...prev, novo]);
     setNovoAtleta('');
   };
 
   // Remover Atleta
   const removerAtleta = (id) => {
-    setListaAtletas(listaAtletas.filter(a => a.id !== id));
+    setListaAtletas(prev => prev.filter(a => a.id !== id));
   };
 
   // Algoritmo de Sorteio de Duplas
@@ -146,13 +160,13 @@ function App() {
         {/* ABA: SORTEADOR DE DUPLAS */}
         {aba === 'sorteio' && (
           <div className="space-y-4">
-            {/* CADASTRO DE ATLETAS */}
+            {/* FORMULÁRIO DE CADASTRO DE ATLETAS */}
             <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-3">
               <h3 className="font-bold text-amber-400 text-sm flex items-center gap-2">
                 <Users className="w-4 h-4" /> Cadastrar Atletas para o Sorteio
               </h3>
               
-              <div className="flex gap-2">
+              <form onSubmit={adicionarAtleta} className="flex gap-2">
                 <input 
                   type="text" 
                   value={novoAtleta}
@@ -163,18 +177,18 @@ function App() {
                 <select 
                   value={poteAtleta}
                   onChange={(e) => setPoteAtleta(e.target.value)}
-                  className="bg-slate-950 border border-slate-800 text-amber-400 text-xs rounded-lg px-2 py-2 focus:outline-none"
+                  className="bg-slate-950 border border-slate-800 text-amber-400 text-xs rounded-lg px-2 py-2 focus:outline-none font-semibold"
                 >
                   <option value="A">Pote A (Linha)</option>
                   <option value="B">Pote B (Base)</option>
                 </select>
                 <button 
-                  onClick={adicionarAtleta}
-                  className="bg-amber-500 hover:bg-amber-400 text-slate-950 p-2 rounded-lg font-bold"
+                  type="submit"
+                  className="bg-amber-500 hover:bg-amber-400 text-slate-950 p-2.5 rounded-lg font-bold transition-all shadow-md active:scale-95"
                 >
                   <Plus className="w-4 h-4" />
                 </button>
-              </div>
+              </form>
 
               {/* LISTA DE ATLETAS CADASTRADOS */}
               <div className="pt-2">
@@ -182,17 +196,20 @@ function App() {
                   <span>Atletas Presentes ({listaAtletas.length})</span>
                   <span>Pote A / Pote B</span>
                 </div>
-                <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto pr-1">
+                <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
                   {listaAtletas.map((atleta) => (
                     <div key={atleta.id} className="bg-slate-950 border border-slate-800/80 p-2 rounded-lg flex items-center justify-between text-xs">
-                      <span className="font-semibold text-slate-200">{atleta.nome}</span>
+                      <span className="font-semibold text-slate-200 truncate max-w-[90px]">{atleta.nome}</span>
                       <div className="flex items-center gap-1.5">
                         <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold ${
                           atleta.pote === 'A' ? 'bg-amber-500/20 text-amber-400' : 'bg-teal-500/20 text-teal-400'
                         }`}>
                           Pote {atleta.pote}
                         </span>
-                        <button onClick={() => removerAtleta(atleta.id)} className="text-slate-500 hover:text-red-400">
+                        <button 
+                          onClick={() => removerAtleta(atleta.id)} 
+                          className="text-slate-500 hover:text-red-400 transition-colors p-0.5"
+                        >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
@@ -204,7 +221,7 @@ function App() {
               {/* BOTÃO DE REALIZAR SORTEIO */}
               <button 
                 onClick={realizarSorteio}
-                className="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-extrabold py-3 rounded-xl text-sm transition-all shadow-lg flex items-center justify-center gap-2 mt-2"
+                className="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-extrabold py-3 rounded-xl text-sm transition-all shadow-lg flex items-center justify-center gap-2 mt-2 active:scale-98"
               >
                 <Shuffle className="w-5 h-5" /> Realizar Sorteio Automático
               </button>
